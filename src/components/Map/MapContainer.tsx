@@ -1,7 +1,6 @@
 // src/components/Map/MapContainer.tsx
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useMap } from '../../context/MapContext';
-import { useMapLayers } from '../../hooks/useMapLayers';
 import { useTurfAnalysis } from '../../hooks/useTurfAnalysis';
 import BackupLayer from './BackupLayer';
 import DataLayer from './DataLayer';
@@ -9,7 +8,7 @@ import MapControls from './MapControls';
 import { MapLayer } from '../../types/map';
 import { WindyService } from '../../services/windyService';
 import { env } from '../../config/env';
-import './MapContainer.css';
+import '../../styles/Map/MapContainer.css';
 
 interface MapContainerProps {
   additionalLayers?: MapLayer[];
@@ -147,11 +146,25 @@ const MapContainer: React.FC<MapContainerProps> = ({
         
         // Initialize Windy
         window.windyInit(options, (windyAPI: any) => {
+          const { store, broadcast } = windyAPI;
           setStatus('Windy initialized successfully');
           
           // Store instances in context
           setWindyInstance(windyAPI);
           setLeafletMap(windyAPI.map);
+          
+          broadcast.on('redrawFinished', () => {
+            // Get current map coordinates and state
+            const mapState = store.get('mapCoords');
+            
+            // Log map coordinates for debugging
+            console.log('Map coordinates:', mapState);
+            
+            // Get the zoom level from the map state
+            const { zoom } = mapState;
+    
+            console.log("zoom level: ",zoom)
+        });
           
           // Create WindyService
           try {

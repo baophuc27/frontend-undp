@@ -101,10 +101,7 @@ export class WindyService {
       this.notifyListeners('level', { level });
     });
   }
-  
-  /**
-   * Notify all registered listeners of changes
-   */
+
   private notifyListeners(event: string, data: any): void {
     this.changeListeners.forEach(listener => {
       try {
@@ -115,23 +112,17 @@ export class WindyService {
     });
   }
   
-  /**
-   * Register a listener for Windy changes
-   */
+
   public addChangeListener(callback: (event: string, data: any) => void): void {
     this.changeListeners.push(callback);
   }
   
-  /**
-   * Remove a registered listener
-   */
+
   public removeChangeListener(callback: (event: string, data: any) => void): void {
     this.changeListeners = this.changeListeners.filter(cb => cb !== callback);
   }
   
-  /**
-   * Returns a list of available Windy layers
-   */
+
   public getAvailableLayers(): WindyLayer[] {
     return [
       {
@@ -162,16 +153,11 @@ export class WindyService {
     ];
   }
   
-  /**
-   * Sets the active Windy layer
-   * @param layerId The ID of the layer to activate
-   */
+
   public setActiveLayer(layerId: string): void {
     try {
-      // Direct store manipulation for setting the overlay
       this.windyApi.store.set('overlay', layerId);
       
-      // Also try to call the overlay function if it exists
       const layers = this.getAvailableLayers();
       const layer = layers.find(l => l.id === layerId);
       
@@ -184,19 +170,14 @@ export class WindyService {
       console.error('Error setting active layer:', error);
     }
   }
-  
-  /**
-   * Add weather data markers to the map
-   */
+
   public addWeatherMarkers(weatherData: WeatherData[]): void {
     if (!this.windyApi.map || !this.markersLayer) {
       return;
     }
     
-    // Clear existing markers
     this.markersLayer.clearLayers();
     
-    // Add new markers for each weather data point
     weatherData.forEach(point => {
       const { lat, lon, temperature, humidity, windSpeed, pressure } = point;
       
@@ -209,7 +190,6 @@ export class WindyService {
         })
       });
       
-      // Create popup content
       const popupContent = `
         <div class="weather-popup">
           <h3>Weather Station</h3>
@@ -220,19 +200,15 @@ export class WindyService {
         </div>
       `;
       
-      // Bind popup to marker
       marker.bindPopup(popupContent);
       
-      // Add marker to the layer group
       if (this.markersLayer) {
         marker.addTo(this.markersLayer);
       }
     });
   }
   
-  /**
-   * Toggle overlay visibility
-   */
+
   public toggleOverlayVisibility(visible: boolean): void {
     if (!this.windyApi.map || !this.overlayLayer) return;
     
@@ -245,10 +221,7 @@ export class WindyService {
     }
   }
   
-  /**
-   * Set altitude level for forecasts
-   * @param level Altitude level (e.g., 'surface', '850h', '700h')
-   */
+
   public setAltitudeLevel(level: string): void {
     if (!this.windyApi.store) return;
     
@@ -262,22 +235,16 @@ export class WindyService {
   public getMap(): L.Map {
     return this.windyApi.map;
   }
-  
-  /**
-   * Clean up resources when the service is no longer needed
-   */
+
   public cleanup(): void {
-    // Clear markers
     if (this.markersLayer) {
       this.markersLayer.clearLayers();
     }
     
-    // Clear overlays
     if (this.overlayLayer) {
       this.overlayLayer.clearLayers();
     }
     
-    // Clear listeners
     this.changeListeners = [];
   }
 }

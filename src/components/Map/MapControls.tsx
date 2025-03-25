@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useMap } from '../../context/MapContext';
-import './MapControls.css';
+import '../../styles/Map/MapControls.css';
 
 const MapControls: React.FC = () => {
   const { windyService, selectedLayer, setSelectedLayer } = useMap();
