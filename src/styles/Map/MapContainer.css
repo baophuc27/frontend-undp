@@ -1,5 +1,5 @@
 /* MapContainer.css */
-.map-container {
+Copy.map-container {
   width: 100%;
   height: 100vh;
   position: relative;
@@ -9,9 +9,16 @@
 .windy-container {
   width: 100%;
   height: 100%;
+  transition: opacity 0.3s ease-in-out;
 }
 
-/* Base container styles */
+.windy-hidden {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
 #windy {
   position: absolute !important;
   top: 0 !important;
@@ -22,7 +29,19 @@
   background: transparent !important;
 }
 
-/* Prevent Windy iframe overlay */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 500 !important;
+  background: white !important;
+}
+.detailed-view-mode .leaflet-tile-pane {
+  z-index: 500 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+
 #windy iframe {
   display: none !important;
 }
@@ -39,6 +58,7 @@
   font-weight: bold;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  transition: background-color 0.3s ease;
 }
 
 .distance-overlay {
@@ -145,4 +165,10 @@ html, body, #root, .App {
   overflow: hidden;
   width: 100%;
   height: 100%;
+}
+
+
+.zoom-indicator.detailed-view-active {
+  background-color: rgba(51, 153, 255, 0.8);
+  color: white;
 }

@@ -43,7 +43,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
   } = useMap();
 
   const { calculateDistance } = useTurfAnalysis();
-  const [showBackupLayer, setShowBackupLayer] = useState<boolean>(false);
+  // Initialize backup layer visibility based on initial zoom level
+  const [showBackupLayer, setShowBackupLayer] = useState<boolean>(currentZoom > 10);
   const [showDataLayer, setShowDataLayer] = useState<boolean>(!!dataUrl);
   const [markers, setMarkers] = useState<any[]>([]);
   const [distance, setDistance] = useState<number | null>(null);
@@ -157,13 +158,25 @@ const MapContainer: React.FC<MapContainerProps> = ({
             // Get current map coordinates and state
             const mapState = store.get('mapCoords');
             
-            // Log map coordinates for debugging
-            console.log('Map coordinates:', mapState);
-            
             // Get the zoom level from the map state
             const { zoom } = mapState;
-    
-            console.log("zoom level: ",zoom)
+            
+            // Update the current zoom level in context
+            setCurrentZoom(zoom);
+            
+            // Toggle backup layer based on zoom level
+            const shouldShowDetailedView = zoom > 10;
+            setShowBackupLayer(shouldShowDetailedView);
+            
+            // Toggle Windy layer visibility - hide when showing detailed view
+            if (windyAPI.map && shouldShowDetailedView) {
+              // Hide Windy layers when showing detailed view
+              document.getElementById('windy')?.classList.add('windy-hidden');
+            } else {
+              document.getElementById('windy')?.classList.remove('windy-hidden');
+            }
+            
+            console.log("zoom level: ", zoom);
         });
           
           // Create WindyService
@@ -216,7 +229,37 @@ const MapContainer: React.FC<MapContainerProps> = ({
   useEffect(() => {
     if (!leafletMap) return;
 
+    console.log("Setting up event listeners on leaflet map");
+    
+    // Add click handler
     leafletMap.on('click', onMapClick);
+    
+    // Add zoom handler for manual zoom changes
+    const handleZoomEnd = () => {
+      const newZoom = leafletMap.getZoom();
+      console.log("Manual zoom changed to:", newZoom);
+      
+      setCurrentZoom(newZoom);
+      const shouldShowDetailedView = newZoom > 10;
+      setShowBackupLayer(shouldShowDetailedView);
+      
+      // Toggle Windy visibility - hide when showing detailed view
+      if (shouldShowDetailedView) {
+        console.log("Hiding Windy layer, showing detailed view");
+        document.getElementById('windy')?.classList.add('windy-hidden');
+        // Force map to recognize size changes
+        setTimeout(() => {
+          if (leafletMap) {
+            leafletMap.invalidateSize();
+          }
+        }, 100);
+      } else {
+        console.log("Showing Windy layer, hiding detailed view");
+        document.getElementById('windy')?.classList.remove('windy-hidden');
+      }
+    };
+    
+    leafletMap.on('zoomend', handleZoomEnd);
     
     // Initial cleanup of any existing overlay iframes
     removeOverlayIframes();
@@ -224,9 +267,10 @@ const MapContainer: React.FC<MapContainerProps> = ({
     // Cleanup function
     return () => {
       leafletMap.off('click', onMapClick);
+      leafletMap.off('zoomend', handleZoomEnd);
       removeOverlayIframes();
     };
-  }, [leafletMap, onMapClick, removeOverlayIframes]);
+  }, [leafletMap, onMapClick, removeOverlayIframes, setCurrentZoom]);
 
   // Show loading state
   if (isMapLoading) {
@@ -260,21 +304,25 @@ const MapContainer: React.FC<MapContainerProps> = ({
   }
 
   return (
-    <div className="map-container">
+    <div className={`map-container ${showBackupLayer ? 'detailed-view-mode' : ''}`}>
       {currentZoom && (
-        <div className="zoom-indicator">
+        <div className={`zoom-indicator ${showBackupLayer ? 'detailed-view-active' : ''}`}>
           Zoom: {currentZoom.toFixed(1)}
-          {showBackupLayer && ' (Detailed View)'}
+          {showBackupLayer && ' (Detailed View Active)'}
         </div>
       )}
       
       <div 
         id="windy" 
         ref={windyContainerRef} 
-        className="windy-container"
+        className={`windy-container ${showBackupLayer ? 'windy-hidden' : ''}`}
       />
       
-      {showBackupLayer && leafletMap && <BackupLayer />}
+      {/* Always render BackupLayer but let it handle visibility internally */}
+      {leafletMap && <BackupLayer 
+        url={env.DETAILED_TILES_URL} 
+        attribution="Map tiles © relevant provider"
+      />}
       
       {showDataLayer && dataUrl && leafletMap && (
         <DataLayer url={dataUrl} />
@@ -286,7 +334,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
         </div>
       )}
       
-      {windyService && <MapControls />}
+      {windyService && !showBackupLayer && <MapControls />}
     </div>
   );
 };
