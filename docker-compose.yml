@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - REACT_APP_WINDY_API_KEY=${REACT_APP_WINDY_API_KEY}
+      - REACT_APP_MAP_CENTER_LAT=${REACT_APP_MAP_CENTER_LAT}
+      - REACT_APP_MAP_CENTER_LNG=${REACT_APP_MAP_CENTER_LNG}
+      - REACT_APP_MAP_DEFAULT_ZOOM=${REACT_APP_MAP_DEFAULT_ZOOM}
+    restart: unless-stopped

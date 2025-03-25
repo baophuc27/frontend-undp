@@ -1,0 +1,190 @@
+/* MapContainer.css - Cleaned up version */
+
+/* Base container styles */
+.map-container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.windy-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* UI overlays */
+.zoom-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  z-index: var(--z-index-controls);
+}
+
+.distance-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  z-index: var(--z-index-controls);
+}
+
+/* Loading & error states */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-index-loading);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(231, 76, 60, 0.9);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  z-index: var(--z-index-loading);
+  max-width: 80%;
+}
+
+/* Data layer indicators */
+
+
+.data-layer-error {
+  background-color: rgba(231, 76, 60, 0.9);
+  color: white;
+}
+
+/* Custom marker styles */
+.weather-marker .marker-temp {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(41, 128, 185, 0.8);
+  border: 2px solid white;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+}
+
+/* Popup styles */
+.weather-popup {
+  padding: 5px;
+}
+
+.weather-popup h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.weather-popup p {
+  margin: 5px 0;
+  font-size: 13px;
+}
+
+.data-point-tooltip h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.data-point-tooltip p {
+  margin: 3px 0;
+  font-size: 12px;
+}
+
+/* Z-index hierarchy */
+:root {
+  --z-index-map-base: 1000;
+  --z-index-windy-layer: 500;
+  --z-index-map-overlays: 50;
+  --z-index-controls: 100;
+  --z-index-tooltips: 150;
+  --z-index-loading: 200;
+  --z-index-modal: 300;
+}
+
+/* Windy positioning fixes */
+#windy {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: var(--z-index-windy-layer) !important;
+}
+
+/* Fix for Leaflet controls */
+.leaflet-control-container {
+  z-index: var(--z-index-controls) !important;
+}
+
+.leaflet-control {
+  z-index: var(--z-index-controls) !important;
+}
+
+/* Map overlays and markers fixes */
+.leaflet-overlay-pane {
+  z-index: var(--z-index-map-overlays) !important;
+}
+
+.leaflet-marker-pane {
+  z-index: var(--z-index-map-overlays) !important;
+}
+
+.leaflet-tooltip-pane {
+  z-index: var(--z-index-tooltips) !important;
+}
+
+.leaflet-popup-pane {
+  z-index: var(--z-index-tooltips) !important;
+}
+
+/* Global fixes for overflow issues */
+html, body, #root, .App {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
